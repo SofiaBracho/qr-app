@@ -1,0 +1,90 @@
+'Suscribete a mi Canal https://bit.ly/3e92UPT
+Private Declare PtrSafe Function URLDownloadToFile Lib "urlmon" Alias "URLDownloadToFileA" ( _
+        ByVal pCaller As LongPtr, _
+        ByVal szURL As String, _
+        ByVal szFileName As String, _
+        ByVal dwReserved As LongPtr, _
+        ByVal lpfnCB As LongPtr _
+      ) As Long
+Sub QR()
+    Dim celda As Range, Rango As Range
+        Set Rango = Selection
+    For Each celda In Rango
+        CrearQR celda
+    Next
+End Sub
+Sub CrearQR(valor As Range)
+    Dim Ubicacion, QR As Object
+    Dim lado, izqui, nTop
+    '---------------------------------------------------
+    'Conectando con APIS GOOGLE
+        If valor.Value = Empty Then
+            MsgBox ("Selecciona por lo menos un valor por favor"), vbInformation, "Pass ON TI"
+            Exit Sub
+        End If
+        
+    Link = "http://chart.apis.google.com/chart?cht=qr&chs=400x400&chl=" & valor.Value & "&chld=H|0"
+        Ubicacion = ThisWorkbook.Path & "\chart.png"
+        URLDownloadToFile 0, Link, Ubicacion, 0, 0
+    '---------------------------------------------------
+    'Crea imagen QR
+        Set QR = ActiveSheet.Pictures.Insert(Ubicacion)
+        Kill Ubicacion
+        With ActiveSheet
+            nTop = .Cells(valor.Row, valor.Column + 1).Top
+            lado = .Cells(valor.Row, valor.Column + 1).Width
+            izqui = .Cells(valor.Row, valor.Column + 1).Left
+            
+            With QR
+                .Top = nTop
+                .Width = lado
+                .Left = izqui
+            End With
+            .Cells(valor.Row, valor.Column + 1).RowHeight = lado
+        End With
+    '-----------------
+
+End Sub
+
+Sub BorraTodas_LasImagenes()
+    Dim imagen As Picture
+    For Each imagen In ActiveSheet.Pictures
+        imagen.Delete
+    Next
+    Rows("6:100000").Select
+    Selection.RowHeight = 15
+    Range("A1").Select
+End Sub
+Sub GuardarComoPDF()
+
+Dim Ruta As String
+Dim NombreArchivo As String
+Dim Hoja As Object
+
+With Application.FileDialog(msoFileDialogFolderPicker)
+    .Title = "PASS ON TI - Seleccionar carpeta"
+    .Show
+    If .SelectedItems.Count = 0 Then
+    Else
+       Ruta = .SelectedItems(1)
+        
+        For Each Hoja In ThisWorkbook.Sheets
+            
+            PDF = Application.InputBox("Introduzca su nombre", "Nombre ARCHIVO")
+            NombreArchivo = Hoja.Name
+            
+            
+            If NombreArchivo Like "*Hoja*" Then
+                NombreArchivo = PDF
+            MsgBox "Guardando COMO: " & NombreArchivo & ".PDF", vbInformation, "Pass ON TI"
+                Hoja.ExportAsFixedFormat Type:=xlTypePDF, Filename:=Ruta & "\" & NombreArchivo & ".pdf", OpenAfterPublish:=False
+              Else
+            End If
+        Next Hoja
+    End If
+End With
+
+End Sub
+
+
+
