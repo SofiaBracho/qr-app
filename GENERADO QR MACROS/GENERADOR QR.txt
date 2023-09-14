@@ -1,4 +1,3 @@
-'Suscribete a mi Canal https://bit.ly/3e92UPT
 Private Declare PtrSafe Function URLDownloadToFile Lib "urlmon" Alias "URLDownloadToFileA" ( _
         ByVal pCaller As LongPtr, _
         ByVal szURL As String, _
